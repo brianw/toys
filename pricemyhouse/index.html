@@ -225,6 +225,10 @@
             }).format(price);
         }
 
+        function oneHotEncode(value, possibleValues) {
+            return possibleValues.map(v => v === value ? 1 : 0);
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -239,19 +243,21 @@
             const building_type = formData.get('building_type');
             const ber_rating = formData.get('ber_rating');
             const sale_date_raw = formData.get('sale_date');
-            const sale_date_encoded = encodeSaleDate(sale_date_raw);
-            const [week_sin, week_cos] = circleEncodeWeek(sale_date_raw);
+
+            const numeric = [bedrooms, bathrooms, size_m];
+            const eircode_encoded = oneHotEncode(eircode, FEATURES.eircodes);
+            const building_type_encoded = oneHotEncode(building_type, FEATURES.building_types);
+            const ber_encoded = oneHotEncode(ber_rating, FEATURES.bers);
+            const months_since_epoch = [encodeSaleDate(sale_date_raw)];
+            const sale_date_encoded = circleEncodeWeek(sale_date_raw);
 
             const features = [
-                eircode,
-                bedrooms,
-                bathrooms,
-                size_m,
-                building_type,
-                ber_rating,
-                sale_date_encoded,
-                week_sin,
-                week_cos
+                ...numeric,
+                ...eircode_encoded,
+                ...building_type_encoded,
+                ...ber_encoded,
+                ...months_since_epoch,
+                ...sale_date_encoded
             ];
 
             try {
