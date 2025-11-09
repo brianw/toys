@@ -192,6 +192,27 @@
             return Math.round(diffMonths);
         }
 
+        function getISOWeek(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+            const yearStart = new Date(d.getFullYear(), 0, 1);
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNo;
+        }
+
+        function circleEncodeRatio(value) {
+            const angle = 2 * Math.PI * value;
+            return [Math.sin(angle), Math.cos(angle)];
+        }
+
+        function circleEncodeWeek(dateString) {
+            const date = new Date(dateString);
+            const week = getISOWeek(date);
+            const ratio = (week - 1) / 52;
+            return circleEncodeRatio(ratio);
+        }
+
         function formatPrice(price) {
             return new Intl.NumberFormat('en-IE', {
                 style: 'currency',
@@ -216,6 +237,7 @@
             const ber_rating = formData.get('ber_rating');
             const sale_date_raw = formData.get('sale_date');
             const sale_date_encoded = encodeSaleDate(sale_date_raw);
+            const [week_sin, week_cos] = circleEncodeWeek(sale_date_raw);
 
             const features = [
                 eircode,
@@ -224,7 +246,9 @@
                 size_m,
                 building_type,
                 ber_rating,
-                sale_date_encoded
+                sale_date_encoded,
+                week_sin,
+                week_cos
             ];
 
             try {
