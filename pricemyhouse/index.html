@@ -267,6 +267,7 @@
             } catch (error) {
                 errorMessageEl.textContent = error.message;
                 errorDiv.classList.remove('hidden');
+                throw error;
             }
         });
 
