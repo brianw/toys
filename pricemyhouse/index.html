@@ -7,9 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="model.js"></script>
     <script src="features.js"></script>
+    <script src="stats.js"></script>
 </head>
 <body class="bg-gradient-to-br from-emerald-50 to-teal-100 min-h-screen py-8 px-4">
     <div class="max-w-2xl mx-auto">
+        <div class="mb-4">
+            <a href="/" class="text-emerald-700 hover:text-emerald-900 text-sm font-medium">← Back to toys</a>
+        </div>
         <div class="bg-white rounded-2xl shadow-2xl p-8">
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-emerald-800 mb-2">🏡 Irish Property Price Predictor</h1>
@@ -37,7 +41,7 @@
 
                     <div>
                         <label for="sale_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Sell
+                            Sale date
                         </label>
                         <select
                             id="sale_date"
@@ -179,8 +183,34 @@
         </div>
 
         <div class="mt-6 text-center text-gray-600 text-sm">
-            <p>Powered by XGBoost machine learning model running entirely in your browser</p>
+            <p>Powered by <span class="relative inline-block group">
+                <span class="cursor-help border-b border-dotted border-gray-400">XGBoost machine learning model</span>
+                <span class="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg whitespace-nowrap z-10">
+                    <span class="block font-semibold mb-1">Model Performance</span>
+                    <span class="block">R² Score: <span id="r2-value"></span></span>
+                    <span class="block">Training Dataset: <span id="train-size"></span> properties</span>
+                    <span class="block mt-1 text-gray-300 max-w-xs whitespace-normal">The model explains <span id="r2-percent"></span> of price variance</span>
+                    <span class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></span>
+                </span>
+            </span> running entirely in your browser</p>
             <p class="mt-1">No data is sent to any server - completely private</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-2xl p-8 mt-6">
+            <h2 class="text-xl font-bold text-emerald-800 mb-4">Eircode Location Impact</h2>
+            <p class="text-sm text-gray-600 mb-4">Average price adjustment by eircode (all else being equal)</p>
+            <div class="overflow-x-auto max-h-96 overflow-y-auto border border-gray-200 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Eircode</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eircodeTableBody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -280,6 +310,35 @@
                 errorDiv.classList.remove('hidden');
                 throw error;
             }
+        });
+
+        document.getElementById('r2-value').textContent = STATS.testR2.toFixed(3);
+        document.getElementById('train-size').textContent = STATS.trainSetSize.toLocaleString('en-IE');
+        document.getElementById('r2-percent').textContent = (STATS.testR2 * 100).toFixed(1) + '%';
+
+        const tableBody = document.getElementById('eircodeTableBody');
+        STATS.eircodeToImpact.forEach((item, index) => {
+            const row = document.createElement('tr');
+
+            const impactValue = item.impact;
+            let impactColor = 'text-gray-700';
+            let bgColor = '';
+
+            if (impactValue > 0) {
+                impactColor = 'text-emerald-600 font-semibold';
+                bgColor = 'bg-emerald-50';
+            } else if (impactValue < 0) {
+                impactColor = 'text-red-600 font-semibold';
+                bgColor = 'bg-red-50';
+            }
+
+            row.className = bgColor;
+            row.innerHTML = `
+                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${item.eircode}</td>
+                <td class="px-4 py-2 whitespace-nowrap text-sm ${impactColor} text-right">${formatPrice(impactValue)}</td>
+            `;
+
+            tableBody.appendChild(row);
         });
     </script>
 </body>
