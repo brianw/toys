@@ -1,0 +1,3 @@
+- NEVER catch excpetions, ALWAYS allow execution to stop should an undesired or unexpected situation arise
+- NEVER use fallback values, e.g. ALWASYS `os.environ['EXPECTED_VALUE']` and NEVER `os.environ.get('EXPECTED_VALUE', 'some-default')`
+- NEVER add comments or docstrings  
