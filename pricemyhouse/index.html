@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="model.js"></script>
     <script src="features.js"></script>
+    <script src="stats.js"></script>
 </head>
 <body class="bg-gradient-to-br from-emerald-50 to-teal-100 min-h-screen py-8 px-4">
     <div class="max-w-2xl mx-auto">
@@ -179,7 +180,16 @@
         </div>
 
         <div class="mt-6 text-center text-gray-600 text-sm">
-            <p>Powered by XGBoost machine learning model running entirely in your browser</p>
+            <p>Powered by <span class="relative inline-block group">
+                <span class="cursor-help border-b border-dotted border-gray-400">XGBoost machine learning model</span>
+                <span class="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg whitespace-nowrap z-10">
+                    <span class="block font-semibold mb-1">Model Performance</span>
+                    <span class="block">R² Score: <span id="r2-value"></span></span>
+                    <span class="block">Training Dataset: <span id="train-size"></span> properties</span>
+                    <span class="block mt-1 text-gray-300 max-w-xs whitespace-normal">The model explains <span id="r2-percent"></span> of price variance</span>
+                    <span class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></span>
+                </span>
+            </span> running entirely in your browser</p>
             <p class="mt-1">No data is sent to any server - completely private</p>
         </div>
     </div>
@@ -281,6 +291,10 @@
                 throw error;
             }
         });
+
+        document.getElementById('r2-value').textContent = STATS.testR2.toFixed(3);
+        document.getElementById('train-size').textContent = STATS.trainSetSize.toLocaleString('en-IE');
+        document.getElementById('r2-percent').textContent = (STATS.testR2 * 100).toFixed(1) + '%';
     </script>
 </body>
 </html>
